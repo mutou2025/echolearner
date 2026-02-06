@@ -1,6 +1,8 @@
+import Achievements from './components/Achievements'
 import HeatmapCharts from './components/HeatmapCharts'
 import KeyboardWithBarCharts from './components/KeyboardWithBarCharts'
 import LineCharts from './components/LineCharts'
+import { useAchievementStats } from './hooks/useAchievementStats'
 import { useWordStats } from './hooks/useWordStats'
 import Layout from '@/components/Layout'
 import { isOpenDarkModeAtom } from '@/store'
@@ -15,6 +17,7 @@ import IconX from '~icons/tabler/x'
 const Analysis = () => {
   const navigate = useNavigate()
   const [, setIsOpenDarkMode] = useAtom(isOpenDarkModeAtom)
+  const achievementStats = useAchievementStats()
 
   const onBack = useCallback(() => {
     navigate('/')
@@ -66,6 +69,9 @@ const Analysis = () => {
                 </div>
                 <div className="mx-4 my-8 h-80 w-auto overflow-hidden rounded-lg p-8 shadow-lg dark:bg-gray-700 dark:bg-opacity-50">
                   <KeyboardWithBarCharts title="按键错误次数排行" name="错误次数" data={wrongTimeRecord} />
+                </div>
+                <div className="mx-4 my-8 h-auto w-auto overflow-hidden rounded-lg p-8 shadow-lg dark:bg-gray-700 dark:bg-opacity-50">
+                  <Achievements stats={achievementStats} />
                 </div>
               </>
             )}

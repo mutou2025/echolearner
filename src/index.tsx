@@ -1,8 +1,10 @@
 import Loading from './components/Loading'
 import './index.css'
+import { Login, Register, AuthCallback } from './pages/Auth'
 import { ErrorBook } from './pages/ErrorBook'
 import { FriendLinks } from './pages/FriendLinks'
 import MobilePage from './pages/Mobile'
+import Profile from './pages/Profile'
 import TypingPage from './pages/Typing'
 import { isOpenDarkModeAtom } from '@/store'
 import { Analytics } from '@vercel/analytics/react'
@@ -17,6 +19,10 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 const AnalysisPage = lazy(() => import('./pages/Analysis'))
 const GalleryPage = lazy(() => import('./pages/Gallery-N'))
+const DictationPage = lazy(() => import('./pages/Dictation'))
+const SpeakingPage = lazy(() => import('./pages/Speaking'))
+const MyDictionaryPage = lazy(() => import('./pages/MyDictionary'))
+const ReviewPage = lazy(() => import('./pages/Review'))
 
 if (process.env.NODE_ENV === 'production') {
   // for prod
@@ -60,7 +66,15 @@ function Root() {
                 <Route path="/gallery" element={<GalleryPage />} />
                 <Route path="/analysis" element={<AnalysisPage />} />
                 <Route path="/error-book" element={<ErrorBook />} />
+                <Route path="/dictation" element={<DictationPage />} />
+                <Route path="/speaking" element={<SpeakingPage />} />
+                <Route path="/my-dictionary" element={<MyDictionaryPage />} />
+                <Route path="/review" element={<ReviewPage />} />
                 <Route path="/friend-links" element={<FriendLinks />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/*" element={<Navigate to="/" />} />
               </>
             )}

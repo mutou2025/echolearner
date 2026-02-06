@@ -3,7 +3,7 @@
 </div>
 
 <h1 align="center">
-  Qwerty Learner
+  Echo Learner
 </h1>
 
 <p align="center">
