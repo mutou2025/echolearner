@@ -6,7 +6,6 @@ import IconBooks from '~icons/tabler/books'
 import IconCalendar from '~icons/tabler/calendar'
 import IconChartBar from '~icons/tabler/chart-bar'
 import IconHome from '~icons/tabler/home'
-import IconSettings from '~icons/tabler/settings'
 import IconMicrophone from '~icons/tabler/microphone'
 import IconUser from '~icons/tabler/user'
 
@@ -33,8 +32,6 @@ export default function Sidebar() {
         <SidebarItem to="/my-dictionary" icon={<IconBooks />} label="个人词库" />
         <SidebarItem to="/review" icon={<IconCalendar />} label="练习计划" />
         <SidebarItem to="/profile" icon={<IconUser />} label="个人资料" />
-        <SidebarItem to="/analysis" icon={<IconChartBar />} label="数据分析" />
-        <SidebarItem to="/settings" icon={<IconSettings />} label="设置" />
       </nav>
     </aside>
   )

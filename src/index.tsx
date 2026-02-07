@@ -2,7 +2,6 @@ import Loading from './components/Loading'
 import './index.css'
 import { AuthCallback, Login, Register } from './pages/Auth'
 import { ErrorBook } from './pages/ErrorBook'
-import { FriendLinks } from './pages/FriendLinks'
 import MobilePage from './pages/Mobile'
 import Profile from './pages/Profile'
 import TypingPage from './pages/Typing'
@@ -70,7 +69,6 @@ function Root() {
                 <Route path="/speaking" element={<SpeakingPage />} />
                 <Route path="/my-dictionary" element={<MyDictionaryPage />} />
                 <Route path="/review" element={<ReviewPage />} />
-                <Route path="/friend-links" element={<FriendLinks />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
