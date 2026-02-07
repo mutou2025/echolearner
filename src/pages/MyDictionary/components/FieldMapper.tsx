@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { CSVRow, FieldMapping } from '../types'
-import { DEFAULT_FIELD_MAPPING } from '../types'
 
 interface FieldMapperProps {
   headers: string[]

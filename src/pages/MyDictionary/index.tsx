@@ -1,6 +1,6 @@
 import Layout from '@/components/Layout'
 import Header from '@/components/Header'
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { UserDictionary } from './types'
 import UploadDialog from './components/UploadDialog'

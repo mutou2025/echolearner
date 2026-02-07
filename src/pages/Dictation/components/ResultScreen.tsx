@@ -1,10 +1,10 @@
-import { DictationContext, DictationActionType } from '../store'
+import { DictationActionType, DictationContext } from '../store'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import IconCheck from '~icons/tabler/check'
-import IconX from '~icons/tabler/x'
-import IconRefresh from '~icons/tabler/refresh'
 import IconHome from '~icons/tabler/home'
+import IconRefresh from '~icons/tabler/refresh'
+import IconX from '~icons/tabler/x'
 
 export default function ResultScreen() {
   const context = useContext(DictationContext)

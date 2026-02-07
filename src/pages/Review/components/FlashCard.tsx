@@ -1,10 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import type { ReviewCard } from '@/lib/spaced-repetition/sm2'
 import { SimpleQuality } from '@/lib/spaced-repetition/sm2'
 import usePronunciation from '@/hooks/usePronunciation'
 import IconVolume from '~icons/tabler/volume'
-import IconEye from '~icons/tabler/eye'
-import IconRotate from '~icons/tabler/rotate'
 
 interface FlashCardProps {
   card: ReviewCard
@@ -14,7 +12,7 @@ interface FlashCardProps {
 
 export default function FlashCard({ card, onReview, showAnswer: initialShowAnswer = false }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(initialShowAnswer)
-  const { play } = usePronunciation()
+  const { play } = usePronunciation(card.word)
 
   const handleFlip = useCallback(() => {
     setIsFlipped(!isFlipped)
@@ -23,9 +21,9 @@ export default function FlashCard({ card, onReview, showAnswer: initialShowAnswe
   const handlePlaySound = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
-      play(card.word)
+      play()
     },
-    [play, card.word],
+    [play],
   )
 
   const handleReview = useCallback(

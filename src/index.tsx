@@ -1,6 +1,6 @@
 import Loading from './components/Loading'
 import './index.css'
-import { Login, Register, AuthCallback } from './pages/Auth'
+import { AuthCallback, Login, Register } from './pages/Auth'
 import { ErrorBook } from './pages/ErrorBook'
 import { FriendLinks } from './pages/FriendLinks'
 import MobilePage from './pages/Mobile'

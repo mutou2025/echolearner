@@ -2,14 +2,12 @@ import Layout from '@/components/Layout'
 import Header from '@/components/Header'
 import FlashCard from './components/FlashCard'
 import ReviewCalendar from './components/ReviewCalendar'
-import {
-  type ReviewCard,
-  SimpleQuality,
-  createReviewCard,
-  updateCardAfterReview,
-  getDueCards,
-} from '@/lib/spaced-repetition/sm2'
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import type { ReviewCard } from '@/lib/spaced-repetition/sm2'
+import { SimpleQuality } from '@/lib/spaced-repetition/sm2'
+import { createReviewCard } from '@/lib/spaced-repetition/sm2'
+import { getDueCards } from '@/lib/spaced-repetition/sm2'
+import { updateCardAfterReview } from '@/lib/spaced-repetition/sm2'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import IconCalendar from '~icons/tabler/calendar'
 import IconPlus from '~icons/tabler/plus'

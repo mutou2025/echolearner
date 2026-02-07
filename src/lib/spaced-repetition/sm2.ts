@@ -144,7 +144,7 @@ export function getDueCards(cards: ReviewCard[]): ReviewCard[] {
 /**
  * 获取即将到期的卡片（未来 N 天）
  */
-export function getUpcomingCards(cards: ReviewCard[], days: number = 7): ReviewCard[] {
+export function getUpcomingCards(cards: ReviewCard[], days = 7): ReviewCard[] {
   const now = Date.now()
   const futureDate = now + days * 24 * 60 * 60 * 1000
 

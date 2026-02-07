@@ -1,16 +1,14 @@
 import SidebarItem from './SidebarItem'
-import logo from '@/assets/logo.svg'
 import { NavLink } from 'react-router-dom'
-import IconHome from '~icons/tabler/home'
-import IconChartBar from '~icons/tabler/chart-bar'
-import IconBook from '~icons/tabler/book'
-import IconAlertCircle from '~icons/tabler/alert-circle'
 import IconArticle from '~icons/tabler/article'
+import IconBook from '~icons/tabler/book'
 import IconBooks from '~icons/tabler/books'
 import IconCalendar from '~icons/tabler/calendar'
-import IconUser from '~icons/tabler/user'
+import IconChartBar from '~icons/tabler/chart-bar'
+import IconHome from '~icons/tabler/home'
 import IconSettings from '~icons/tabler/settings'
 import IconMicrophone from '~icons/tabler/microphone'
+import IconUser from '~icons/tabler/user'
 
 export default function Sidebar() {
   return (

@@ -1,11 +1,11 @@
-import { DictationContext, DictationActionType, getHintText } from '../store'
+import { DictationActionType, DictationContext, getHintText } from '../store'
 import usePronunciationSound from '@/hooks/usePronunciation'
-import { useContext, useEffect, useRef, useCallback } from 'react'
-import IconVolume from '~icons/tabler/volume'
+import { useCallback, useContext, useEffect, useRef } from 'react'
+import IconArrowRight from '~icons/tabler/arrow-right'
 import IconBulb from '~icons/tabler/bulb'
 import IconEye from '~icons/tabler/eye'
-import IconArrowRight from '~icons/tabler/arrow-right'
 import IconRefresh from '~icons/tabler/refresh'
+import IconVolume from '~icons/tabler/volume'
 
 export default function DictationPanel() {
   const context = useContext(DictationContext)

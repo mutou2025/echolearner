@@ -1,12 +1,11 @@
 import { Dialog, Transition } from '@headlessui/react'
-import { Fragment, useCallback, useState, useRef } from 'react'
+import { Fragment, useCallback, useRef, useState } from 'react'
 import Papa from 'papaparse'
 import type { CSVRow, FieldMapping, UserDictionary } from '../types'
 import type { Word } from '@/typings'
 import FieldMapper from './FieldMapper'
 import IconX from '~icons/tabler/x'
 import IconUpload from '~icons/tabler/upload'
-import IconFile from '~icons/tabler/file-text'
 
 interface UploadDialogProps {
   isOpen: boolean
@@ -89,7 +88,7 @@ export default function UploadDialog({ isOpen, onClose, onSave }: UploadDialogPr
     if (!mapping) return []
 
     return csvData
-      .map((row, index) => {
+      .map((row) => {
         const word = row[mapping.word]?.trim()
         const trans = row[mapping.trans]?.trim()
 

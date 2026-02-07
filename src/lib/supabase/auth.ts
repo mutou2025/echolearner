@@ -1,5 +1,6 @@
-import { supabase, isSupabaseConfigured } from './client'
-import type { User, Session, AuthError } from '@supabase/supabase-js'
+import type { AuthError, Session, User } from '@supabase/supabase-js'
+import noop from '@/utils/noop'
+import { isSupabaseConfigured, supabase } from './client'
 
 export type AuthResult = {
   user: User | null
@@ -106,7 +107,7 @@ export async function getSession(): Promise<Session | null> {
  */
 export function onAuthStateChange(callback: (user: User | null) => void) {
   if (!supabase) {
-    return { unsubscribe: () => {} }
+    return { unsubscribe: noop }
   }
 
   const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {

@@ -1,5 +1,5 @@
 import { useImmerReducer } from 'use-immer'
-import type { SpeakingState, SpeakingAction } from './type'
+import type { SpeakingAction, SpeakingState } from './type'
 import { initialSpeakingState } from './type'
 
 function speakingReducer(draft: SpeakingState, action: SpeakingAction): void {
@@ -57,7 +57,8 @@ function speakingReducer(draft: SpeakingState, action: SpeakingAction): void {
       break
 
     case 'RESET':
-      return initialSpeakingState
+      Object.assign(draft, initialSpeakingState)
+      break
   }
 }
 

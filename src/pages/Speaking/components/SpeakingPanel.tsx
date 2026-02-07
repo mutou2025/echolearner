@@ -1,14 +1,14 @@
 import { useCallback, useEffect } from 'react'
-import { useSpeechRecognition, calculateSimilarity } from '@/hooks/useSpeechRecognition'
-import type { Word } from '@/typings'
-import type { SpeakingState, SpeakingAction } from '../store'
+import { calculateSimilarity, useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import usePronunciation from '@/hooks/usePronunciation'
+import type { Word } from '@/typings'
+import type { SpeakingAction, SpeakingState } from '../store'
+import IconArrowRight from '~icons/tabler/arrow-right'
+import IconCheck from '~icons/tabler/check'
 import IconMicrophone from '~icons/tabler/microphone'
 import IconMicrophoneOff from '~icons/tabler/microphone-off'
 import IconPlayerPlay from '~icons/tabler/player-play'
 import IconRefresh from '~icons/tabler/refresh'
-import IconArrowRight from '~icons/tabler/arrow-right'
-import IconCheck from '~icons/tabler/check'
 import IconX from '~icons/tabler/x'
 
 interface SpeakingPanelProps {
@@ -24,19 +24,19 @@ export default function SpeakingPanel({ word, state, dispatch }: SpeakingPanelPr
   const { isListening, transcript, confidence, isSupported, error, startListening, stopListening, resetTranscript } =
     useSpeechRecognition()
 
-  const { play } = usePronunciation()
+  const { play } = usePronunciation(word.name)
 
   // 播放单词发音
   const handlePlayWord = useCallback(() => {
     dispatch({ type: 'SET_STATUS', payload: 'playing' })
-    play(word.name)
+    play()
     // 播放完成后恢复 idle 状态
     setTimeout(() => {
       if (state.status === 'playing') {
         dispatch({ type: 'SET_STATUS', payload: 'idle' })
       }
     }, 1500)
-  }, [dispatch, play, word.name, state.status])
+  }, [dispatch, play, state.status])
 
   // 开始录音
   const handleStartListening = useCallback(() => {

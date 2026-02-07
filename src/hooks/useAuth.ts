@@ -1,15 +1,17 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAtom, useSetAtom } from 'jotai'
-import { currentUserAtom, authLoadingAtom, isAuthenticatedAtom } from '@/store/authAtom'
+import { authLoadingAtom, currentUserAtom, isAuthenticatedAtom } from '@/store/authAtom'
 import {
-  signIn as authSignIn,
-  signUp as authSignUp,
-  signOut as authSignOut,
-  signInWithOAuth as authSignInWithOAuth,
   getCurrentUser,
-  onAuthStateChange,
-  resetPassword as authResetPassword,
   isSupabaseConfigured,
+  onAuthStateChange,
+} from '@/lib/supabase'
+import {
+  resetPassword as authResetPassword,
+  signIn as authSignIn,
+  signInWithOAuth as authSignInWithOAuth,
+  signOut as authSignOut,
+  signUp as authSignUp,
 } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 

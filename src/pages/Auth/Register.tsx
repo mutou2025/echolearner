@@ -1,14 +1,13 @@
 import Layout from '@/components/Layout'
 import { useAuth } from '@/hooks/useAuth'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import IconMail from '~icons/tabler/mail'
+import { Link } from 'react-router-dom'
 import IconLock from '~icons/tabler/lock'
-import IconLoader from '~icons/tabler/loader-2'
 import IconCheck from '~icons/tabler/check'
+import IconLoader from '~icons/tabler/loader-2'
+import IconMail from '~icons/tabler/mail'
 
 export default function Register() {
-  const navigate = useNavigate()
   const { signUp, loading, error, clearError, isConfigured } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
