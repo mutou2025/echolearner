@@ -1,68 +1,137 @@
 import Layout from '@/components/Layout'
 import Header from '@/components/Header'
 import { DictChapterButton } from '@/pages/Typing/components/DictChapterButton'
+import WordPanel from '@/pages/Typing/components/WordPanel'
+import Speed from '@/pages/Typing/components/Speed'
 import { useWordList } from '@/pages/Typing/hooks/useWordList'
-import { currentChapterAtom, currentDictInfoAtom, randomConfigAtom } from '@/store'
-import DictationPanel from './components/DictationPanel'
+import { useConfetti } from '@/pages/Typing/hooks/useConfetti'
+import { TypingContext, TypingStateActionType, initialState, typingReducer } from '@/pages/Typing/store'
 import ResultScreen from './components/ResultScreen'
-import { DictationActionType, DictationContext, dictationReducer, initialState } from './store'
-import { useAtomValue } from 'jotai'
-import { useEffect, useRef, useState } from 'react'
+import {
+  currentChapterAtom,
+  currentDictIdAtom,
+  pronunciationConfigAtom,
+  randomConfigAtom,
+  wordDictationConfigAtom,
+} from '@/store'
+import { idDictionaryMap } from '@/resources/dictionary'
+import { isLegal } from '@/utils'
+import { useSaveChapterRecord } from '@/utils/db'
+import { useMixPanelChapterLogUploader } from '@/utils/mixpanel'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useImmerReducer } from 'use-immer'
 import { Link } from 'react-router-dom'
-import IconVolume from '~icons/tabler/volume'
 import IconKeyboard from '~icons/tabler/keyboard'
 
 export default function Dictation() {
-  const [state, dispatch] = useImmerReducer(dictationReducer, structuredClone(initialState))
-  const { words, isLoading } = useWordList()
+  const [state, dispatch] = useImmerReducer(typingReducer, structuredClone(initialState))
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const { words } = useWordList()
+
+  const [currentDictId, setCurrentDictId] = useAtom(currentDictIdAtom)
+  const setCurrentChapter = useSetAtom(currentChapterAtom)
   const randomConfig = useAtomValue(randomConfigAtom)
-  const currentDictInfo = useAtomValue(currentDictInfoAtom)
-  const currentChapter = useAtomValue(currentChapterAtom)
-  const [showIntro, setShowIntro] = useState(true)
-  
-  // 记录上次的词典和章节，用于检测变化
-  const prevDictRef = useRef(currentDictInfo.id)
-  const prevChapterRef = useRef(currentChapter)
+  const chapterLogUploader = useMixPanelChapterLogUploader(state)
+  const saveChapterRecord = useSaveChapterRecord()
 
-  // 当词典或章节变化时，重置介绍页面
+  const setWordDictationConfig = useSetAtom(wordDictationConfigAtom)
+  const setPronunciationConfig = useSetAtom(pronunciationConfigAtom)
+  const savedConfigRef = useRef<{ isOpen: boolean; type: string; openBy: string } | null>(null)
+
+  // On mount: force hideAll mode and enable pronunciation
+  // On unmount: restore previous config
   useEffect(() => {
-    if (prevDictRef.current !== currentDictInfo.id || prevChapterRef.current !== currentChapter) {
-      setShowIntro(true)
-      prevDictRef.current = currentDictInfo.id
-      prevChapterRef.current = currentChapter
+    setWordDictationConfig((old) => {
+      savedConfigRef.current = { ...old }
+      return { ...old, isOpen: true, type: 'hideAll' as const, openBy: 'auto' as const }
+    })
+    setPronunciationConfig((old) => ({ ...old, isOpen: true }))
+
+    return () => {
+      if (savedConfigRef.current) {
+        const saved = savedConfigRef.current
+        setWordDictationConfig(() => saved as typeof saved & { type: 'hideAll'; openBy: 'auto' })
+      }
     }
-  }, [currentDictInfo.id, currentChapter])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  // 加载单词
+  // Validate dictionary exists
   useEffect(() => {
-    if (words && words.length > 0) {
+    if (!(currentDictId in idDictionaryMap)) {
+      setCurrentDictId('cet4')
+      setCurrentChapter(0)
+    }
+  }, [currentDictId, setCurrentChapter, setCurrentDictId])
+
+  const skipWord = useCallback(() => {
+    dispatch({ type: TypingStateActionType.SKIP_WORD })
+  }, [dispatch])
+
+  // Handle window blur
+  useEffect(() => {
+    const onBlur = () => {
+      dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: false })
+    }
+    window.addEventListener('blur', onBlur)
+    return () => window.removeEventListener('blur', onBlur)
+  }, [dispatch])
+
+  // Track loading state
+  useEffect(() => {
+    state.chapterData.words?.length > 0 ? setIsLoading(false) : setIsLoading(true)
+  }, [state.chapterData.words])
+
+  // Start typing on keypress
+  useEffect(() => {
+    if (!state.isTyping) {
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (!isLoading && e.key !== 'Enter' && (isLegal(e.key) || e.key === ' ') && !e.altKey && !e.ctrlKey && !e.metaKey) {
+          e.preventDefault()
+          dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: true })
+        }
+      }
+      window.addEventListener('keydown', onKeyDown)
+      return () => window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [state.isTyping, isLoading, dispatch])
+
+  // Setup chapter when words load
+  useEffect(() => {
+    if (words !== undefined) {
       dispatch({
-        type: DictationActionType.SETUP_CHAPTER,
+        type: TypingStateActionType.SETUP_CHAPTER,
         payload: { words, shouldShuffle: randomConfig.isOpen },
       })
     }
-  }, [words, randomConfig.isOpen, dispatch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words])
 
-  // 计时器
+  // Save chapter record on finish
+  useEffect(() => {
+    if (state.isFinished && !state.isSavingRecord) {
+      chapterLogUploader()
+      saveChapterRecord(state)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.isFinished, state.isSavingRecord])
+
+  // Timer
   useEffect(() => {
     let intervalId: number
-    if (state.isActive && !state.isFinished) {
+    if (state.isTyping) {
       intervalId = window.setInterval(() => {
-        dispatch({ type: DictationActionType.TICK_TIMER })
+        dispatch({ type: TypingStateActionType.TICK_TIMER })
       }, 1000)
     }
     return () => clearInterval(intervalId)
-  }, [state.isActive, state.isFinished, dispatch])
+  }, [state.isTyping, dispatch])
 
-  // 开始练习
-  const handleStart = () => {
-    setShowIntro(false)
-    dispatch({ type: DictationActionType.START_PRACTICE })
-  }
+  useConfetti(state.isFinished)
 
   return (
-    <DictationContext.Provider value={{ state, dispatch }}>
+    <TypingContext.Provider value={{ state, dispatch }}>
       {state.isFinished && <ResultScreen />}
       <Layout>
         <Header>
@@ -75,51 +144,24 @@ export default function Dictation() {
             打字模式
           </Link>
         </Header>
-
         <div className="container mx-auto flex h-full flex-1 flex-col items-center justify-center pb-5">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center">
-              <div
-                className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-400 border-r-transparent"
-                role="status"
-              />
+          <div className="container relative mx-auto flex h-full flex-col items-center">
+            <div className="container flex flex-grow items-center justify-center">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center">
+                  <div
+                    className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-400 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                    role="status"
+                  ></div>
+                </div>
+              ) : (
+                !state.isFinished && <WordPanel />
+              )}
             </div>
-          ) : showIntro ? (
-            // 介绍页面
-            <div className="flex max-w-lg flex-col items-center gap-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30">
-                <IconVolume className="h-10 w-10 text-indigo-500" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">听写模式</h1>
-              <p className="text-center text-gray-600 dark:text-gray-400">
-                听发音写单词，锻炼英语听力和拼写能力。
-                <br />
-                如果不确定，可以使用提示功能。
-              </p>
-              <div className="w-full rounded-lg bg-gray-50 p-4 text-sm text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                <p className="mb-2 font-medium">快捷键：</p>
-                <ul className="space-y-1">
-                  <li><kbd className="rounded bg-gray-200 px-1.5 py-0.5 text-xs dark:bg-gray-600">Tab</kbd> 重播发音</li>
-                  <li><kbd className="rounded bg-gray-200 px-1.5 py-0.5 text-xs dark:bg-gray-600">Ctrl+H</kbd> 显示提示</li>
-                  <li><kbd className="rounded bg-gray-200 px-1.5 py-0.5 text-xs dark:bg-gray-600">Ctrl+Enter</kbd> 显示答案</li>
-                  <li><kbd className="rounded bg-gray-200 px-1.5 py-0.5 text-xs dark:bg-gray-600">Enter</kbd> 提交/下一个</li>
-                </ul>
-              </div>
-              <button
-                onClick={handleStart}
-                className="w-full rounded-lg bg-indigo-500 py-3 font-medium text-white transition-colors hover:bg-indigo-600"
-              >
-                开始听写
-              </button>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                共 {state.chapterData.words.length} 个单词
-              </p>
-            </div>
-          ) : (
-            <DictationPanel />
-          )}
+            <Speed />
+          </div>
         </div>
       </Layout>
-    </DictationContext.Provider>
+    </TypingContext.Provider>
   )
 }

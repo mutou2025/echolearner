@@ -1,6 +1,5 @@
 import { TypingContext, TypingStateActionType } from '../../store'
 import AnalysisButton from '../AnalysisButton'
-import DictationButton from '../DictationButton'
 import ErrorBookButton from '../ErrorBookButton'
 import HandPositionIllustration from '../HandPositionIllustration'
 import LoopWordSwitcher from '../LoopWordSwitcher'
@@ -51,7 +50,7 @@ export default function Switcher() {
         <LoopWordSwitcher />
       </Tooltip>
 
-      <Tooltip className="h-7 w-7" content={`开关默写模式（${CTRL} + V）`}>
+      <Tooltip className="h-7 w-7" content={`开关拼写挑战（${CTRL} + V）`}>
         <WordDictationSwitcher />
       </Tooltip>
       <Tooltip className="h-7 w-7" content={`开关释义显示（${CTRL} + Shift + V）`}>
@@ -71,8 +70,6 @@ export default function Switcher() {
       <Tooltip content="错题本">
         <ErrorBookButton />
       </Tooltip>
-
-      <DictationButton />
 
       <Tooltip className="h-7 w-7" content="查看数据统计">
         <AnalysisButton />

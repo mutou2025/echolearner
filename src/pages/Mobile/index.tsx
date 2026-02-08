@@ -16,8 +16,8 @@ const detail = [
     img: phoneticImg,
   },
   {
-    title: '默写模式',
-    description: '每章结束后可选择默写，巩固所学单词',
+    title: '拼写挑战',
+    description: '每章结束后可选择拼写挑战，巩固所学单词',
     img: dictationImg,
   },
   {
@@ -280,7 +280,7 @@ const MobilePage: React.FC = () => {
               <meta itemProp="datePublished" content="2024-10-28" />
               <meta
                 itemProp="reviewBody"
-                content="准备六级考试时发现的宝藏！CET-6词库很全面，默写模式帮我巩固了很多易错单词。最喜欢的是错词本功能，可以反复练习不熟悉的单词。一个月下来，打字速度和词汇量都有明显提升。"
+                content="准备六级考试时发现的宝藏！CET-6词库很全面，拼写挑战帮我巩固了很多易错单词。最喜欢的是错词本功能，可以反复练习不熟悉的单词。一个月下来，打字速度和词汇量都有明显提升。"
               />
             </div>
 
@@ -379,7 +379,7 @@ const MobilePage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* 默写模式 */}
+                {/* 拼写挑战 */}
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl sm:p-8">
                   <div className="mb-4 inline-flex items-center justify-center rounded-full bg-indigo-100 p-3">
                     <svg className="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,9 +391,9 @@ const MobilePage: React.FC = () => {
                       />
                     </svg>
                   </div>
-                  <h3 className="mb-3 text-lg font-semibold text-gray-900 sm:text-xl">智能默写模式</h3>
+                  <h3 className="mb-3 text-lg font-semibold text-gray-900 sm:text-xl">智能拼写挑战</h3>
                   <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
-                    在用户完成一个章节的练习后，会弹出选项是否默写本章，方便用户巩固本章学习的单词。通过默写练习强化记忆效果。
+                    在用户完成一个章节的练习后，会弹出选项是否进行拼写挑战，方便用户巩固本章学习的单词。通过拼写挑战强化记忆效果。
                   </p>
                 </div>
 

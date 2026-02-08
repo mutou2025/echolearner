@@ -12,7 +12,7 @@ import type { Dictionary } from '@/typings'
 import range from '@/utils/range'
 import { useAtom, useSetAtom } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import IcOutlineCollectionsBookmark from '~icons/ic/outline-collections-bookmark'
 import MajesticonsPaperFoldTextLine from '~icons/majesticons/paper-fold-text-line'
 import PajamasReviewList from '~icons/pajamas/review-list'
@@ -29,6 +29,8 @@ export default function DictDetail({ dictionary: dict }: { dictionary: Dictionar
   const [curTab, setCurTab] = useState<Tab>(Tab.Chapters)
   const setReviewModeInfo = useSetAtom(reviewModeInfoAtom)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const returnTo = searchParams.get('returnTo') || '/'
   const { deleteWordRecord } = useDeleteWordRecord()
   const [reload, setReload] = useState(false)
 
@@ -52,9 +54,9 @@ export default function DictDetail({ dictionary: dict }: { dictionary: Dictionar
       setCurrentDictId(dict.id)
       setCurrentChapter(index)
       setReviewModeInfo((old) => ({ ...old, isReviewMode: false }))
-      navigate('/')
+      navigate(returnTo)
     },
-    [dict.id, navigate, setCurrentChapter, setCurrentDictId, setReviewModeInfo],
+    [dict.id, navigate, returnTo, setCurrentChapter, setCurrentDictId, setReviewModeInfo],
   )
 
   const handleTabChange = useCallback(

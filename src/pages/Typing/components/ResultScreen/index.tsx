@@ -134,6 +134,13 @@ const ResultScreen = () => {
     navigate('/gallery')
   }, [navigate, setCurrentChapter, setReviewModeInfo])
 
+  const listenDictationHandler = useCallback(() => {
+    if (isReviewMode) {
+      return
+    }
+    navigate('/dictation')
+  }, [isReviewMode, navigate])
+
   useHotkeys(
     'enter',
     () => {
@@ -207,9 +214,19 @@ const ResultScreen = () => {
                       className="my-btn-primary h-12 border-2 border-solid border-gray-300 bg-white text-base text-gray-700 dark:border-gray-700 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
                       type="button"
                       onClick={dictationButtonHandler}
-                      title="默写本章节"
+                      title="拼写挑战"
                     >
-                      默写本章节
+                      拼写挑战
+                    </button>
+                  </Tooltip>
+                  <Tooltip content="跳转到听写模式练习本章节">
+                    <button
+                      className="my-btn-primary h-12 border-2 border-solid border-gray-300 bg-white text-base text-gray-700 dark:border-gray-700 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+                      type="button"
+                      onClick={listenDictationHandler}
+                      title="听写本章节"
+                    >
+                      听写本章节
                     </button>
                   </Tooltip>
                   <Tooltip content="快捷键：space">

@@ -1,85 +1,164 @@
-import { DictationActionType, DictationContext } from '../store'
-import { useContext } from 'react'
+import { TypingContext, TypingStateActionType } from '@/pages/Typing/store'
+import ConclusionBar from '@/pages/Typing/components/ResultScreen/ConclusionBar'
+import RemarkRing from '@/pages/Typing/components/ResultScreen/RemarkRing'
+import WordChip from '@/pages/Typing/components/ResultScreen/WordChip'
+import Tooltip from '@/components/Tooltip'
+import {
+  currentChapterAtom,
+  currentDictInfoAtom,
+  randomConfigAtom,
+} from '@/store'
+import { Transition } from '@headlessui/react'
+import { useAtom, useAtomValue } from 'jotai'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useNavigate } from 'react-router-dom'
-import IconCheck from '~icons/tabler/check'
-import IconHome from '~icons/tabler/home'
-import IconRefresh from '~icons/tabler/refresh'
 import IconX from '~icons/tabler/x'
 
-export default function ResultScreen() {
-  const context = useContext(DictationContext)
-  if (!context) throw new Error('ResultScreen must be used within DictationContext')
+const ResultScreen = () => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { state, dispatch } = useContext(TypingContext)!
 
-  const { state, dispatch } = context
+  const currentDictInfo = useAtomValue(currentDictInfoAtom)
+  const [currentChapter, setCurrentChapter] = useAtom(currentChapterAtom)
+  const randomConfig = useAtomValue(randomConfigAtom)
   const navigate = useNavigate()
 
-  const total = state.chapterData.correctCount + state.chapterData.wrongCount
-  const accuracy = total > 0 ? Math.round((state.chapterData.correctCount / total) * 100) : 0
-  const minutes = Math.floor(state.timerData.time / 60)
-  const seconds = state.timerData.time % 60
+  useEffect(() => {
+    dispatch({ type: TypingStateActionType.TICK_TIMER, addTime: 0 })
+  }, [dispatch])
 
-  const handleRepeat = () => {
-    dispatch({ type: DictationActionType.REPEAT_CHAPTER, shouldShuffle: true })
-  }
+  const wrongWords = useMemo(() => {
+    return state.chapterData.userInputLogs
+      .filter((log) => log.wrongCount > 0)
+      .map((log) => state.chapterData.words[log.index])
+      .filter((word) => word !== undefined)
+  }, [state.chapterData.userInputLogs, state.chapterData.words])
 
-  const handleHome = () => {
+  const isLastChapter = useMemo(() => {
+    return currentChapter >= currentDictInfo.chapterCount - 1
+  }, [currentChapter, currentDictInfo])
+
+  const correctRate = useMemo(() => {
+    const chapterLength = state.chapterData.words.length
+    const correctCount = chapterLength - wrongWords.length
+    return Math.floor((correctCount / chapterLength) * 100)
+  }, [state.chapterData.words.length, wrongWords.length])
+
+  const mistakeLevel = useMemo(() => {
+    if (correctRate >= 85) return 0
+    else if (correctRate >= 70) return 1
+    else return 2
+  }, [correctRate])
+
+  const timeString = useMemo(() => {
+    const seconds = state.timerData.time
+    const minutes = Math.floor(seconds / 60)
+    const minuteString = minutes < 10 ? '0' + minutes : minutes + ''
+    const restSeconds = seconds % 60
+    const secondString = restSeconds < 10 ? '0' + restSeconds : restSeconds + ''
+    return `${minuteString}:${secondString}`
+  }, [state.timerData.time])
+
+  const repeatButtonHandler = useCallback(() => {
+    dispatch({ type: TypingStateActionType.REPEAT_CHAPTER, shouldShuffle: randomConfig.isOpen })
+  }, [dispatch, randomConfig.isOpen])
+
+  const nextButtonHandler = useCallback(() => {
+    if (!isLastChapter) {
+      setCurrentChapter((old) => old + 1)
+      dispatch({ type: TypingStateActionType.NEXT_CHAPTER })
+    }
+  }, [dispatch, isLastChapter, setCurrentChapter])
+
+  const exitButtonHandler = useCallback(() => {
     navigate('/')
-  }
+  }, [navigate])
+
+  useHotkeys('enter', () => nextButtonHandler(), { preventDefault: true })
+  useHotkeys(
+    'space',
+    (e) => {
+      e.stopPropagation()
+      repeatButtonHandler()
+    },
+    { preventDefault: true },
+  )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-800">
-        <h2 className="mb-6 text-center text-2xl font-bold text-gray-800 dark:text-white">
-          听写完成！
-        </h2>
-
-        {/* 统计数据 */}
-        <div className="mb-6 grid grid-cols-2 gap-4">
-          <div className="rounded-lg bg-green-50 p-4 text-center dark:bg-green-900/20">
-            <div className="flex items-center justify-center gap-1 text-2xl font-bold text-green-600 dark:text-green-400">
-              <IconCheck className="h-6 w-6" />
-              {state.chapterData.correctCount}
+    <div className="fixed inset-0 z-30 overflow-y-auto">
+      <div className="absolute inset-0 bg-gray-300 opacity-80 dark:bg-gray-600"></div>
+      <Transition
+        show={true}
+        enter="ease-in duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="ease-out duration-100"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="flex h-screen items-center justify-center">
+          <div className="my-card fixed flex w-[90vw] max-w-6xl flex-col overflow-hidden rounded-3xl bg-white pb-14 pl-10 pr-5 pt-10 shadow-lg dark:bg-gray-800 md:w-4/5 lg:w-3/5">
+            <div className="text-center font-sans text-xl font-normal text-gray-900 dark:text-gray-400 md:text-2xl">
+              {`${currentDictInfo.name} 第${currentChapter + 1}章 · 听写`}
             </div>
-            <div className="text-sm text-green-600 dark:text-green-400">正确</div>
-          </div>
-          <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
-            <div className="flex items-center justify-center gap-1 text-2xl font-bold text-red-600 dark:text-red-400">
-              <IconX className="h-6 w-6" />
-              {state.chapterData.wrongCount}
+            <button className="absolute right-7 top-5" onClick={exitButtonHandler}>
+              <IconX className="text-gray-400" />
+            </button>
+            <div className="mt-10 flex flex-row gap-2 overflow-hidden">
+              <div className="flex flex-shrink-0 flex-grow-0 flex-col gap-3 px-4 sm:px-1 md:px-2 lg:px-4">
+                <RemarkRing remark={`${state.timerData.accuracy}%`} caption="正确率" percentage={state.timerData.accuracy} />
+                <RemarkRing remark={timeString} caption="章节耗时" />
+                <RemarkRing remark={state.timerData.wpm + ''} caption="WPM" />
+              </div>
+              <div className="z-10 ml-6 flex-1 overflow-visible rounded-xl bg-indigo-50 dark:bg-gray-700">
+                <div className="customized-scrollbar z-20 ml-8 mr-1 flex h-80 flex-row flex-wrap content-start gap-4 overflow-y-auto overflow-x-hidden pr-7 pt-9">
+                  {wrongWords.map((word, index) => (
+                    <WordChip key={`${index}-${word.name}`} word={word} />
+                  ))}
+                </div>
+                <div className="align-center flex w-full flex-row justify-start rounded-b-xl bg-indigo-200 px-4 dark:bg-indigo-400">
+                  <ConclusionBar mistakeLevel={mistakeLevel} mistakeCount={wrongWords.length} />
+                </div>
+              </div>
             </div>
-            <div className="text-sm text-red-600 dark:text-red-400">错误</div>
+            <div className="mt-10 flex w-full justify-center gap-5 px-5 text-xl">
+              <Tooltip content="快捷键：space">
+                <button
+                  className="my-btn-primary h-12 border-2 border-solid border-gray-300 bg-white text-base text-gray-700 dark:border-gray-700 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+                  type="button"
+                  onClick={repeatButtonHandler}
+                  title="重复本章节"
+                >
+                  重复本章节
+                </button>
+              </Tooltip>
+              {!isLastChapter && (
+                <Tooltip content="快捷键：enter">
+                  <button
+                    className="my-btn-primary h-12 text-base font-bold"
+                    type="button"
+                    onClick={nextButtonHandler}
+                    title="下一章节"
+                  >
+                    下一章节
+                  </button>
+                </Tooltip>
+              )}
+              <button
+                className="my-btn-primary h-12 border-2 border-solid border-gray-300 bg-white text-base text-gray-700 dark:border-gray-700 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+                type="button"
+                onClick={exitButtonHandler}
+                title="返回打字模式"
+              >
+                返回打字模式
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* 正确率 */}
-        <div className="mb-6 text-center">
-          <div className="text-5xl font-bold text-indigo-500">{accuracy}%</div>
-          <div className="text-gray-500 dark:text-gray-400">正确率</div>
-        </div>
-
-        {/* 用时 */}
-        <div className="mb-6 text-center text-gray-600 dark:text-gray-400">
-          用时: {minutes}分{seconds}秒
-        </div>
-
-        {/* 操作按钮 */}
-        <div className="flex gap-4">
-          <button
-            onClick={handleHome}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
-          >
-            <IconHome className="h-5 w-5" />
-            返回首页
-          </button>
-          <button
-            onClick={handleRepeat}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-500 py-3 font-medium text-white transition-colors hover:bg-indigo-600"
-          >
-            <IconRefresh className="h-5 w-5" />
-            再来一次
-          </button>
-        </div>
-      </div>
+      </Transition>
     </div>
   )
 }
+
+export default ResultScreen
