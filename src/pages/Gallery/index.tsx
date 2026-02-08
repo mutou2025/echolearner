@@ -9,16 +9,21 @@ import groupBy from '@/utils/groupBy'
 import { useAtomValue } from 'jotai'
 import type React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 
 const GalleryPage: React.FC = () => {
   const currentDictInfo = useAtomValue(currentDictInfoAtom)
   const groups = Object.entries(groupBy(dictionaries, (dict) => dict.category))
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  
+  // 获取返回路径，默认为首页
+  const returnTo = searchParams.get('returnTo') || '/'
+  
   useHotkeys(
     'enter,esc',
     () => {
-      navigate('/')
+      navigate(returnTo)
     },
     { preventDefault: true },
   )
@@ -27,7 +32,7 @@ const GalleryPage: React.FC = () => {
     <Layout>
       <Header>
         <Tooltip content="快捷键 Enter or Esc">
-          <NavLink className="rounded-lg bg-indigo-400 px-6 py-1 text-lg text-white focus:outline-none dark:text-opacity-80" to="/">
+          <NavLink className="rounded-lg bg-indigo-400 px-6 py-1 text-lg text-white focus:outline-none dark:text-opacity-80" to={returnTo}>
             完成选择
           </NavLink>
         </Tooltip>
@@ -59,3 +64,4 @@ const GalleryPage: React.FC = () => {
 GalleryPage.displayName = 'GalleryPage'
 
 export default GalleryPage
+

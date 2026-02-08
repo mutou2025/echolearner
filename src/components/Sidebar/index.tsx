@@ -5,6 +5,7 @@ import IconBook from '~icons/tabler/book'
 import IconBooks from '~icons/tabler/books'
 import IconCalendar from '~icons/tabler/calendar'
 import IconChartBar from '~icons/tabler/chart-bar'
+import IconChartLine from '~icons/tabler/chart-line'
 import IconHome from '~icons/tabler/home'
 import IconMicrophone from '~icons/tabler/microphone'
 import IconUser from '~icons/tabler/user'
@@ -26,6 +27,7 @@ export default function Sidebar() {
       <nav className="flex-1 space-y-1 px-3">
         <SidebarItem to="/" icon={<IconHome />} label="主页" />
         <SidebarItem to="/gallery" icon={<IconChartBar />} label="词库" />
+        <SidebarItem to="/analysis" icon={<IconChartLine />} label="学习统计" />
         <SidebarItem to="/error-book" icon={<IconBook />} label="错题本" />
         <SidebarItem to="/dictation" icon={<IconArticle />} label="听写" />
         <SidebarItem to="/speaking" icon={<IconMicrophone />} label="口语跟读" />

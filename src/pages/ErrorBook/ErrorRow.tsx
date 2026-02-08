@@ -26,18 +26,18 @@ const ErrorRow: FC<IErrorRowProps> = ({ record, onDelete }) => {
   }, [record, setCurrentRowDetail])
 
   return (
-    <li
-      className="opacity-85 flex w-full cursor-pointer items-center justify-between rounded-lg bg-white px-6 py-3 text-black shadow-md dark:bg-gray-800 dark:text-white"
+    <div
+      className="flex w-full cursor-pointer items-center px-6 py-3 text-black hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
       onClick={onClick}
     >
-      <span className="basis-2/12 break-normal">{record.word}</span>
-      <span className="basis-6/12 break-normal">
+      <span className="basis-2/12 break-normal text-center">{record.word}</span>
+      <span className="basis-4/12 break-normal text-center text-sm text-gray-600 dark:text-gray-400">
         {word ? word.trans.join('；') : <LoadingWordUI isLoading={isLoading} hasError={hasError} />}
       </span>
-      <span className="basis-1/12 break-normal pl-8">{record.wrongCount}</span>
-      <span className="basis-1/12 break-normal">{dictInfo?.name}</span>
+      <span className="basis-2/12 break-normal text-center text-gray-700 dark:text-gray-300">{record.wrongCount}</span>
+      <span className="basis-2/12 break-normal text-center text-sm text-gray-500 dark:text-gray-400">{dictInfo?.name}</span>
       <span
-        className="basis-1/12 break-normal"
+        className="basis-1/12 break-normal text-center"
         onClick={(e) => {
           e.stopPropagation()
           onDelete()
@@ -46,15 +46,15 @@ const ErrorRow: FC<IErrorRowProps> = ({ record, onDelete }) => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <DeleteIcon />
+              <DeleteIcon className="mx-auto text-gray-400 hover:text-red-500" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>Delete Records</p>
+              <p>删除记录</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </span>
-    </li>
+    </div>
   )
 }
 

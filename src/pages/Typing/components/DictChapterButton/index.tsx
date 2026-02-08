@@ -7,11 +7,21 @@ import { Fragment } from 'react'
 import { NavLink } from 'react-router-dom'
 import IconCheck from '~icons/tabler/check'
 
-export const DictChapterButton = () => {
+interface DictChapterButtonProps {
+  /** 选择完成后返回的路径，默认为 "/" */
+  returnTo?: string
+}
+
+export const DictChapterButton = ({ returnTo = '/' }: DictChapterButtonProps) => {
   const currentDictInfo = useAtomValue(currentDictInfoAtom)
   const [currentChapter, setCurrentChapter] = useAtom(currentChapterAtom)
   const chapterCount = currentDictInfo.chapterCount
   const isReviewMode = useAtomValue(isReviewModeAtom)
+
+  // 构建 gallery 链接，包含返回路径参数
+  const galleryLink = returnTo && returnTo !== '/' 
+    ? `/gallery?returnTo=${encodeURIComponent(returnTo)}`
+    : '/gallery'
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (event) => {
     if (event.key === ' ') {
@@ -23,7 +33,7 @@ export const DictChapterButton = () => {
       <Tooltip content="词典切换">
         <NavLink
           className="block rounded-lg px-3 py-1 text-lg transition-colors duration-300 ease-in-out hover:bg-indigo-400 hover:text-white focus:outline-none dark:text-white dark:text-opacity-60 dark:hover:text-opacity-100"
-          to="/gallery"
+          to={galleryLink}
         >
           {currentDictInfo.name} {isReviewMode && '错题复习'}
         </NavLink>
@@ -61,3 +71,4 @@ export const DictChapterButton = () => {
     </>
   )
 }
+

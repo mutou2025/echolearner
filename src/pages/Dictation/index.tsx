@@ -2,12 +2,12 @@ import Layout from '@/components/Layout'
 import Header from '@/components/Header'
 import { DictChapterButton } from '@/pages/Typing/components/DictChapterButton'
 import { useWordList } from '@/pages/Typing/hooks/useWordList'
-import { randomConfigAtom } from '@/store'
+import { currentChapterAtom, currentDictInfoAtom, randomConfigAtom } from '@/store'
 import DictationPanel from './components/DictationPanel'
 import ResultScreen from './components/ResultScreen'
 import { DictationActionType, DictationContext, dictationReducer, initialState } from './store'
 import { useAtomValue } from 'jotai'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useImmerReducer } from 'use-immer'
 import { Link } from 'react-router-dom'
 import IconVolume from '~icons/tabler/volume'
@@ -17,7 +17,22 @@ export default function Dictation() {
   const [state, dispatch] = useImmerReducer(dictationReducer, structuredClone(initialState))
   const { words, isLoading } = useWordList()
   const randomConfig = useAtomValue(randomConfigAtom)
+  const currentDictInfo = useAtomValue(currentDictInfoAtom)
+  const currentChapter = useAtomValue(currentChapterAtom)
   const [showIntro, setShowIntro] = useState(true)
+  
+  // 记录上次的词典和章节，用于检测变化
+  const prevDictRef = useRef(currentDictInfo.id)
+  const prevChapterRef = useRef(currentChapter)
+
+  // 当词典或章节变化时，重置介绍页面
+  useEffect(() => {
+    if (prevDictRef.current !== currentDictInfo.id || prevChapterRef.current !== currentChapter) {
+      setShowIntro(true)
+      prevDictRef.current = currentDictInfo.id
+      prevChapterRef.current = currentChapter
+    }
+  }, [currentDictInfo.id, currentChapter])
 
   // 加载单词
   useEffect(() => {
@@ -51,7 +66,7 @@ export default function Dictation() {
       {state.isFinished && <ResultScreen />}
       <Layout>
         <Header>
-          <DictChapterButton />
+          <DictChapterButton returnTo="/dictation" />
           <Link
             to="/"
             className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"

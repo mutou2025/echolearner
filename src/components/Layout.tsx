@@ -14,7 +14,7 @@ export default function Layout({ children, hideSidebar = false }: LayoutProps) {
       {!hideSidebar && <Sidebar />}
 
       {/* 主内容区域 */}
-      <main className="flex flex-1 flex-col items-center overflow-auto pb-4">
+      <main className="flex flex-1 flex-col overflow-auto pb-4">
         {children}
         <Footer />
       </main>

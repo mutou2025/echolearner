@@ -2,52 +2,35 @@ import Layout from '@/components/Layout'
 import Header from '@/components/Header'
 import FlashCard from './components/FlashCard'
 import ReviewCalendar from './components/ReviewCalendar'
-import type { ReviewCard } from '@/lib/spaced-repetition/sm2'
-import { SimpleQuality } from '@/lib/spaced-repetition/sm2'
-import { createReviewCard } from '@/lib/spaced-repetition/sm2'
-import { getDueCards } from '@/lib/spaced-repetition/sm2'
-import { updateCardAfterReview } from '@/lib/spaced-repetition/sm2'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useReviewCards } from '@/hooks/useReviewCards'
+import { createReviewCard, SimpleQuality } from '@/lib/spaced-repetition/sm2'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import IconCalendar from '~icons/tabler/calendar'
 import IconPlus from '~icons/tabler/plus'
 import IconPlayerPlay from '~icons/tabler/player-play'
 import IconCheck from '~icons/tabler/check'
 import IconRefresh from '~icons/tabler/refresh'
-
-// 本地存储 key
-const STORAGE_KEY = 'reviewCards'
+import IconCloud from '~icons/tabler/cloud'
+import IconCloudOff from '~icons/tabler/cloud-off'
+import IconLoader from '~icons/tabler/loader-2'
 
 export default function Review() {
-  const [cards, setCards] = useState<ReviewCard[]>([])
+  const {
+    cards,
+    dueCards,
+    isLoading,
+    isSyncing,
+    isLoggedIn,
+    addCards,
+    reviewCard,
+    clearAllCards,
+    syncNow,
+  } = useReviewCards()
+
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isReviewing, setIsReviewing] = useState(false)
   const [reviewedCount, setReviewedCount] = useState(0)
-
-  // 从本地存储加载卡片
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        setCards(JSON.parse(stored))
-      }
-    } catch (error) {
-      console.error('Failed to load review cards:', error)
-    }
-  }, [])
-
-  // 保存到本地存储
-  const saveCards = useCallback((newCards: ReviewCard[]) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newCards))
-      setCards(newCards)
-    } catch (error) {
-      console.error('Failed to save review cards:', error)
-    }
-  }, [])
-
-  // 获取待复习的卡片
-  const dueCards = useMemo(() => getDueCards(cards), [cards])
 
   // 当前卡片
   const currentCard = dueCards[currentIndex]
@@ -61,13 +44,10 @@ export default function Review() {
 
   // 复习评分
   const handleReview = useCallback(
-    (quality: SimpleQuality) => {
+    async (quality: SimpleQuality) => {
       if (!currentCard) return
 
-      const updatedCard = updateCardAfterReview(currentCard, quality)
-      const newCards = cards.map((c) => (c.id === updatedCard.id ? updatedCard : c))
-      saveCards(newCards)
-
+      await reviewCard(currentCard, quality)
       setReviewedCount((prev) => prev + 1)
 
       // 移动到下一张
@@ -78,26 +58,25 @@ export default function Review() {
         setIsReviewing(false)
       }
     },
-    [currentCard, cards, currentIndex, dueCards.length, saveCards],
+    [currentCard, currentIndex, dueCards.length, reviewCard],
   )
 
   // 从错题本添加卡片（示例功能）
   const handleAddFromErrorBook = useCallback(() => {
-    // 这里可以集成错题本数据
-    const sampleCards: ReviewCard[] = [
+    const sampleCards = [
       createReviewCard('abandon', ['v. 放弃；抛弃'], 'əˈbændən'),
       createReviewCard('ability', ['n. 能力；才能'], 'əˈbɪləti'),
       createReviewCard('abroad', ['adv. 在国外；到国外'], 'əˈbrɔːd'),
     ]
-    saveCards([...cards, ...sampleCards])
-  }, [cards, saveCards])
+    addCards(sampleCards)
+  }, [addCards])
 
   // 清空所有卡片
-  const handleClearAll = useCallback(() => {
+  const handleClearAll = useCallback(async () => {
     if (window.confirm('确定要清空所有复习卡片吗？')) {
-      saveCards([])
+      await clearAllCards()
     }
-  }, [saveCards])
+  }, [clearAllCards])
 
   // 键盘快捷键
   useEffect(() => {
@@ -135,10 +114,39 @@ export default function Review() {
           <IconCalendar className="h-5 w-5 text-indigo-500" />
           <span className="font-medium text-gray-800 dark:text-white">练习计划</span>
         </div>
+        {/* 云端同步状态 */}
+        <div className="ml-auto flex items-center gap-2">
+          {isLoggedIn ? (
+            <button
+              onClick={syncNow}
+              disabled={isSyncing}
+              className="flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-sm text-green-600 transition-colors hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
+            >
+              {isSyncing ? (
+                <IconLoader className="h-4 w-4 animate-spin" />
+              ) : (
+                <IconCloud className="h-4 w-4" />
+              )}
+              <span>{isSyncing ? '同步中...' : '已同步云端'}</span>
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
+            >
+              <IconCloudOff className="h-4 w-4" />
+              <span>登录同步数据</span>
+            </Link>
+          )}
+        </div>
       </Header>
 
       <div className="container mx-auto flex-1 px-4 py-6">
-        {isReviewing && currentCard ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <IconLoader className="h-8 w-8 animate-spin text-indigo-500" />
+          </div>
+        ) : isReviewing && currentCard ? (
           // 复习模式
           <div className="flex flex-col items-center">
             {/* 进度 */}

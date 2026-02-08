@@ -15,6 +15,16 @@ interface HeatmapChartsProps {
 const HeatmapCharts: FC<HeatmapChartsProps> = ({ data, title }) => {
   const [isOpenDarkMode] = useAtom(isOpenDarkModeAtom)
 
+  // 检查数据是否为空
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <div className="text-center text-xl font-bold text-gray-600 dark:text-white">{title}</div>
+        <div className="mt-4 text-gray-400">暂无数据</div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="text-center text-xl font-bold text-gray-600	dark:text-white">{title}</div>
@@ -55,3 +65,4 @@ const HeatmapCharts: FC<HeatmapChartsProps> = ({ data, title }) => {
 }
 
 export default HeatmapCharts
+
