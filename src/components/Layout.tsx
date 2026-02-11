@@ -12,6 +12,7 @@ interface LayoutProps {
 export default function Layout({ children, hideSidebar = false }: LayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const toggleSidebar = () => setIsSidebarCollapsed((prev) => !prev)
+  const scrollTopOffset = hideSidebar ? 0 : 48
 
   return (
     <LayoutContext.Provider value={{ isSidebarCollapsed, toggleSidebar }}>
@@ -20,9 +21,11 @@ export default function Layout({ children, hideSidebar = false }: LayoutProps) {
         {!hideSidebar && <Sidebar />}
 
         {/* 主内容区域 */}
-        <main className="flex flex-1 flex-col overflow-auto pb-4">
-          {children}
-          <Footer />
+        <main className="relative flex flex-1 flex-col overflow-hidden pb-4">
+          <div className="absolute inset-0 overflow-auto" style={{ top: scrollTopOffset }}>
+            {children}
+            <Footer />
+          </div>
         </main>
       </div>
     </LayoutContext.Provider>

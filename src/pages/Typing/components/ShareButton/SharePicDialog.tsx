@@ -224,9 +224,7 @@ export default function SharePicDialog({
             </div>
             <div className="mb-3 ml-5 mt-auto">
               <div className="text-xs">{SITE_DOMAIN}</div>
-              <div className="mt-1 text-xs font-normal text-gray-400">
-                为语言学习者设计的单词与肌肉记忆锻炼软件
-              </div>
+              <div className="mt-1 text-xs font-normal text-gray-400">听见 · 模仿 · 成为</div>
             </div>
             <div className="absolute -right-9 bottom-10 ">
               <img src={shareImage} className="w-48" width={186} height={122} />

@@ -41,17 +41,17 @@ export default function Sidebar() {
       }`}
     >
       {/* Logo */}
-      <div className={`py-6 ${collapsed ? 'px-3' : 'px-4'}`}>
+      <div className={`py-6 ${collapsed ? 'px-3' : 'px-5'}`}>
         <NavLink
           to="/"
-          className={`group flex rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 shadow-sm transition-colors hover:border-indigo-200 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800 ${
-            collapsed ? 'justify-center p-3' : 'items-center gap-3 p-3'
+          className={`group flex transition-colors ${
+            collapsed ? 'justify-center p-1' : 'items-start gap-3.5'
           }`}
-          title={collapsed ? 'Echo Learner 精听实验室' : undefined}
+          title={collapsed ? 'ECHOLearner 精听实验室' : undefined}
         >
           <div
-            className={`grid place-items-center rounded-xl bg-white/80 ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 ${
-              collapsed ? 'h-10 w-10 p-1.5' : 'h-11 w-11 p-2'
+            className={`grid place-items-center ${
+              collapsed ? 'h-14 w-14 p-1.5' : 'h-16 w-16 p-1.5'
             }`}
             aria-hidden
           >
@@ -64,13 +64,13 @@ export default function Sidebar() {
 
           {!collapsed && (
             <div className="min-w-0 leading-tight">
-              <div className="truncate text-[15px] font-semibold tracking-[0.15px] text-gray-900 dark:text-gray-100">
-                ECHO Learner
+              <div className="truncate text-[18px] font-extrabold leading-[1.1] text-[#111827] dark:text-gray-100">
+                ECHOLearner
               </div>
-              <div className="mt-1 text-[12px] font-medium text-gray-500 dark:text-gray-400">
+              <div className="mt-1.5 text-[13px] font-semibold leading-[1.2] text-[#6B7280] dark:text-gray-400">
                 精听实验室
               </div>
-              <div className="mt-1.5 text-[12px] font-semibold tracking-[0.3px] text-indigo-600 dark:text-indigo-300">
+              <div className="mt-2 text-[13px] font-bold leading-[1.2] text-[#C15F3C] dark:text-[#C15F3C]">
                 听见·模仿·成为
               </div>
             </div>
